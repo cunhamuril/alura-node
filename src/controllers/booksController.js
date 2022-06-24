@@ -2,23 +2,27 @@ import Books from "../models/Book.js";
 
 class BookController {
   static index = (req, res) => {
-    Books.find((err, books) => {
-      res.status(200).json(books);
-    });
+    Books.find()
+      .populate("author")
+      .exec((err, books) => {
+        res.status(200).json(books);
+      });
   };
 
   static show = (req, res) => {
     const { id } = req.params;
 
-    Books.findById(id, (err, books) => {
-      if (err) {
-        res.status(404).send({
-          message: `${err.message} - Book not found`,
-        });
-      }
+    Books.findById(id)
+      .populate("author")
+      .exec((err, books) => {
+        if (err) {
+          res.status(404).send({
+            message: `${err.message} - Book not found`,
+          });
+        }
 
-      res.status(200).json(books);
-    });
+        res.status(200).json(books);
+      });
   };
 
   static store = (req, res) => {
