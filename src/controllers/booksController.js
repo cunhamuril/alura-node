@@ -1,4 +1,3 @@
-import books from "../models/Book.js";
 import Books from "../models/Book.js";
 
 class BookController {
@@ -41,7 +40,7 @@ class BookController {
   static update = (req, res) => {
     const { id } = req.params;
 
-    books.findByIdAndUpdate(id, { $set: req.body }, (err, book) => {
+    Books.findByIdAndUpdate(id, { $set: req.body }, (err, book) => {
       if (err) {
         res.status(500).send({
           message: `${err.message} - Update book fail`,
@@ -57,7 +56,7 @@ class BookController {
   static destroy = (req, res) => {
     const { id } = req.params;
 
-    books.findByIdAndDelete(id, (err) => {
+    Books.findByIdAndDelete(id, (err) => {
       if (err) {
         res.status(500).send({
           message: `${err.message} - Delete book fail`,
