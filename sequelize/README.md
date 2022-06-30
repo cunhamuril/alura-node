@@ -3,6 +3,33 @@
 ## Getting started
 
 - Iniciar o sequelize:
+
   ```bash
-  npx sequelize-cli init
+  yarn sequelize-cli init
   ```
+
+- **Criação e população da tabela People**
+
+  - Criação da model:
+
+    ```bash
+    yarn sequelize-cli model:create --name person --attributes name:string,active:boolean,email:string,role:string
+    ```
+
+  - Execução da migration:
+
+    ```bash
+    yarn sequelize-cli db:migrate
+    ```
+
+  - Geração da seed:
+
+    ```bash
+    yarn sequelize-cli seed:generate --name demo-person
+    ```
+
+  - Execução das seeds:
+
+    ```bash
+    yarn sequelize-cli db:seed:all
+    ```
