@@ -11,13 +11,16 @@ module.exports = (sequelize, DataTypes) => {
       Class.hasMany(models.Enrollment);
       Class.belongsTo(models.Person, {
         foreignKey: "teacherId",
+        as: "teacher",
       });
-      Class.belongsTo(models.Level);
+      Class.belongsTo(models.Level, {
+        as: "level",
+      });
     }
   }
   Class.init(
     {
-      start_date: DataTypes.DATEONLY,
+      startDate: DataTypes.DATEONLY,
     },
     {
       sequelize,
