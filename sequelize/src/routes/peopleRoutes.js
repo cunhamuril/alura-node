@@ -4,10 +4,10 @@ const PeopleController = require("../controllers/PeopleController.js");
 
 const router = express.Router();
 
-router.get("/People", PeopleController.index);
-router.get("/People/:id", PeopleController.show);
-router.post("/People", PeopleController.store);
-router.put("/People/:id", PeopleController.update);
-router.delete("/People/:id", PeopleController.destroy);
+router.get("/people", PeopleController.index);
+router.get("/people/:id", PeopleController.show);
+router.post("/people", PeopleController.store);
+router.put("/people/:id", PeopleController.update);
+router.delete("/people/:id", PeopleController.destroy);
 
 module.exports = router;
