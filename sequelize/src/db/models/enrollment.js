@@ -10,8 +10,11 @@ module.exports = (sequelize, DataTypes) => {
     static associate(models) {
       Enrollment.belongsTo(models.Person, {
         foreignKey: "studentId",
+        as: "student",
       });
-      Enrollment.belongsTo(models.Class);
+      Enrollment.belongsTo(models.Class, {
+        as: "class",
+      });
     }
   }
   Enrollment.init(
