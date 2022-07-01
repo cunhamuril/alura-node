@@ -3,29 +3,20 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     return queryInterface.bulkInsert(
-      "people",
+      "Levels",
       [
         {
-          name: "John Doe",
-          active: true,
-          email: "john@john.com",
-          role: "student",
+          description: "basic",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
-          name: "Jane Doe",
-          active: true,
-          email: "jane@jane.com",
-          role: "student",
+          description: "intermediary",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
         {
-          name: "Murilo Cunha",
-          active: true,
-          email: "murilo@murilo.com",
-          role: "teacher",
+          description: "advanced",
           createdAt: new Date(),
           updatedAt: new Date(),
         },
@@ -35,6 +26,6 @@ module.exports = {
   },
 
   async down(queryInterface, Sequelize) {
-    return queryInterface.bulkDelete("people", null, {});
+    return queryInterface.bulkDelete("Levels", null, {});
   },
 };

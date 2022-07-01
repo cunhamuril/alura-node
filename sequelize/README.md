@@ -13,7 +13,7 @@
   - Criação da model:
 
     ```bash
-    yarn sequelize-cli model:create --name person --attributes name:string,active:boolean,email:string,role:string
+    yarn sequelize-cli model:create --name Person --attributes name:string,active:boolean,email:string,role:string
     ```
 
   - Execução da migration:
@@ -25,7 +25,7 @@
   - Geração da seed:
 
     ```bash
-    yarn sequelize-cli seed:generate --name demo-person
+    yarn sequelize-cli seed:generate --name demo-Person
     ```
 
   - Execução das seeds:
