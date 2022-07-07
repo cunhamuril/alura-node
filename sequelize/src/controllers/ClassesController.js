@@ -1,13 +1,28 @@
 const database = require("../db/models");
+const Sequelize = require("sequelize");
+
+const Op = Sequelize.Op;
 
 class ClassesController {
   static async index(req, res) {
+    const { initialDate, finalDate } = req.query;
+
     try {
+      const where = {};
+
+      if (initialDate || finalDate) {
+        where.startDate = {};
+
+        if (initialDate) where.startDate[Op.gte] = initialDate; // gte => greater then or equal
+        if (finalDate) where.startDate[Op.lte] = finalDate; // lte => less then or equal
+      }
+
       const Classes = await database.Class.findAll({
         include: [
           { model: database.Person, as: "teacher" },
           { model: database.Level, as: "level" },
         ],
+        where,
       });
 
       return res.status(200).json(Classes);
