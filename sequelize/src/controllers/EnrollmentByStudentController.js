@@ -5,16 +5,22 @@ class EnrollmentByStudentController {
     const { studentId } = req.params;
 
     try {
-      const enrollment = await database.Enrollment.findAll({
-        where: { studentId },
-        include: { model: database.Class, as: "class" },
+      const person = await database.Person.findOne({
+        where: { id: studentId },
       });
 
-      if (!enrollment) {
+      const enrollments = await person.getEnrolledClasses();
+
+      // const enrollment = await database.Enrollment.findAll({
+      //   where: { studentId },
+      //   include: { model: database.Class, as: "class" },
+      // });
+
+      if (!enrollments) {
         return res.status(404).send("Enrollment not found.");
       }
 
-      return res.status(200).json(enrollment);
+      return res.status(200).json(enrollments);
     } catch (error) {
       return res.status(500).json(error.message);
     }
