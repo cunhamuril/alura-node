@@ -2,10 +2,18 @@ const database = require("../db/models");
 
 class PeopleController {
   static async index(req, res) {
-    try {
-      const People = await database.Person.findAll();
+    const { includeInactive } = req.query;
 
-      return res.status(200).json(People);
+    try {
+      let people;
+
+      if (!!includeInactive) {
+        people = await database.Person.scope("all").findAll();
+      } else {
+        people = await database.Person.findAll();
+      }
+
+      return res.status(200).json(people);
     } catch (error) {
       return res.status(500).json(error.message);
     }
