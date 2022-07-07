@@ -2,6 +2,7 @@ const express = require("express");
 
 const PeopleController = require("../controllers/PeopleController.js");
 const EnrollmentByStudentController = require("../controllers/EnrollmentByStudentController.js");
+const PeopleRestoreController = require("../controllers/PeopleRestoreController.js");
 
 const router = express.Router();
 
@@ -20,5 +21,7 @@ router.get(
   "/people/:studentId/enrollments/:enrollmentId",
   EnrollmentByStudentController.show
 );
+
+router.post("/people/:id/restore", PeopleRestoreController.store);
 
 module.exports = router;

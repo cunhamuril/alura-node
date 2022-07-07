@@ -25,6 +25,7 @@ module.exports = (sequelize, DataTypes) => {
     {
       sequelize,
       modelName: "Class",
+      paranoid: true, // Soft delete => os registros da tabela não vão ser verdadeiramente apagados
     }
   );
   return Class;

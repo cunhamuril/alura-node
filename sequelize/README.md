@@ -33,3 +33,11 @@
     ```bash
     yarn sequelize-cli db:seed:all
     ```
+
+- **Alterações em tables com migrations**
+
+  - Criação da migration:
+
+  ```bash
+    yarn sequelize-cli migration:create --name add-column-person
+  ```
