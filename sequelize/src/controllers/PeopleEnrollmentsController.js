@@ -1,20 +1,15 @@
-const database = require("../db/models");
+const PeopleServices = require("../services/PeopleServices");
 
-class EnrollmentByStudentController {
+const peopleServices = new PeopleServices();
+
+class PeopleEnrollmentsController {
   static async index(req, res) {
     const { studentId } = req.params;
 
     try {
-      const person = await database.Person.findOne({
-        where: { id: studentId },
-      });
-
-      const enrollments = await person.getEnrolledClasses();
-
-      // const enrollment = await database.Enrollment.findAll({
-      //   where: { studentId },
-      //   include: { model: database.Class, as: "class" },
-      // });
+      const enrollments = await peopleServices.getAllEnrollmentsByStudent(
+        studentId
+      );
 
       if (!enrollments) {
         return res.status(404).send("Enrollment not found.");
@@ -30,9 +25,10 @@ class EnrollmentByStudentController {
     const { studentId, enrollmentId } = req.params;
 
     try {
-      const enrollment = await database.Enrollment.findOne({
-        where: { id: enrollmentId, studentId },
-      });
+      const enrollment = await peopleServices.getOneEnrollmentByStudent(
+        studentId,
+        enrollmentId
+      );
 
       if (!enrollment) {
         return res.status(404).send("Enrollment not found.");
@@ -45,4 +41,4 @@ class EnrollmentByStudentController {
   }
 }
 
-module.exports = EnrollmentByStudentController;
+module.exports = PeopleEnrollmentsController;

@@ -1,23 +1,13 @@
-const database = require("../db/models");
+const ClassesServices = require("../services/ClassesServices");
+
+const classesServices = new ClassesServices();
 
 class ClassEnrollmentsController {
   static async index(req, res) {
     const { id } = req.params;
 
     try {
-      const Class = await database.Class.findOne({
-        where: { id },
-      });
-
-      const enrollments = await Class.getEnrollments({
-        include: [{ model: database.Person, as: "student" }],
-        where: { status: "confirmed" },
-      });
-
-      // const enrollment = await database.Enrollment.findAll({
-      //   where: { studentId },
-      //   include: { model: database.Class, as: "class" },
-      // });
+      const enrollments = await classesServices.getClassEnrollments(id);
 
       if (!enrollments) {
         return res.status(404).send("Enrollment not found.");

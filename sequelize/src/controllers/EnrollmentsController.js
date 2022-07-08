@@ -1,16 +1,13 @@
-const database = require("../db/models");
+const EnrollmentsServices = require("../services/EnrollmentsServices");
+
+const enrollmentsServices = new EnrollmentsServices();
 
 class EnrollmentsController {
   static async index(req, res) {
     try {
-      const Enrollments = await database.Enrollment.findAll({
-        include: [
-          { model: database.Class, as: "class" },
-          { model: database.Person, as: "student" },
-        ],
-      });
+      const enrollments = await enrollmentsServices.getAllRecords();
 
-      return res.status(200).json(Enrollments);
+      return res.status(200).json(enrollments);
     } catch (error) {
       return res.status(500).json(error.message);
     }
@@ -20,29 +17,23 @@ class EnrollmentsController {
     const { id } = req.params;
 
     try {
-      const Enrollment = await database.Enrollment.findOne({
-        where: { id },
-        include: [
-          { model: database.Class, as: "class" },
-          { model: database.Person, as: "student" },
-        ],
-      });
+      const enrollment = await enrollmentsServices.getOneRecord(id);
 
-      if (!Enrollment) {
+      if (!enrollment) {
         return res.status(404).send("Enrollment not found.");
       }
 
-      return res.status(200).json(Enrollment);
+      return res.status(200).json(enrollment);
     } catch (error) {
       return res.status(500).json(error.message);
     }
   }
 
   static async store(req, res) {
-    const Enrollment = req.body;
+    const data = req.body;
 
     try {
-      const createdEnrollment = await database.Enrollment.create(Enrollment);
+      const createdEnrollment = await enrollmentsServices.createRecord(data);
 
       return res.status(201).json(createdEnrollment);
     } catch (error) {
@@ -52,20 +43,10 @@ class EnrollmentsController {
 
   static async update(req, res) {
     const { id } = req.params;
-    const Enrollment = req.body;
+    const data = req.body;
 
     try {
-      const requestedEnrollment = await database.Enrollment.findOne({
-        where: { id },
-      });
-
-      if (!requestedEnrollment) {
-        return res.status(404).send("Enrollment not found.");
-      }
-
-      await database.Enrollment.update(Enrollment, {
-        where: { id },
-      });
+      await enrollmentsServices.updateRecord(id, data);
 
       return res.status(204).send();
     } catch (error) {
@@ -77,17 +58,7 @@ class EnrollmentsController {
     const { id } = req.params;
 
     try {
-      const requestedEnrollment = await database.Enrollment.findOne({
-        where: { id },
-      });
-
-      if (!requestedEnrollment) {
-        return res.status(404).send("Enrollment not found.");
-      }
-
-      await database.Enrollment.destroy({
-        where: { id },
-      });
+      await enrollmentsServices.deleteRecord(id);
 
       return res.status(204).send();
     } catch (error) {

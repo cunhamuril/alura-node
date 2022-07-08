@@ -1,17 +1,15 @@
-const database = require("../db/models");
+const PeopleServices = require("../services/PeopleServices");
+
+const peopleServices = new PeopleServices();
 
 class PeopleController {
   static async index(req, res) {
     const { includeInactive } = req.query;
 
     try {
-      let people;
-
-      if (!!includeInactive) {
-        people = await database.Person.scope("all").findAll();
-      } else {
-        people = await database.Person.findAll();
-      }
+      const people = includeInactive
+        ? await peopleServices.getAllRecordsIncludeInactive()
+        : await peopleServices.getAllRecords();
 
       return res.status(200).json(people);
     } catch (error) {
@@ -23,7 +21,7 @@ class PeopleController {
     const { id } = req.params;
 
     try {
-      const Person = await database.Person.findOne({ where: { id } });
+      const Person = await peopleServices.getOneRecord(id);
 
       if (!Person) {
         return res.status(404).send("Person not found.");
@@ -36,10 +34,10 @@ class PeopleController {
   }
 
   static async store(req, res) {
-    const Person = req.body;
+    const person = req.body;
 
     try {
-      const createdPerson = await database.Person.create(Person);
+      const createdPerson = await peopleServices.createRecord(person);
 
       return res.status(201).json(createdPerson);
     } catch (error) {
@@ -49,18 +47,10 @@ class PeopleController {
 
   static async update(req, res) {
     const { id } = req.params;
-    const Person = req.body;
+    const data = req.body;
 
     try {
-      const requestedPerson = await database.Person.findOne({ where: { id } });
-
-      if (!requestedPerson) {
-        return res.status(404).send("Person not found.");
-      }
-
-      await database.Person.update(Person, {
-        where: { id },
-      });
+      await peopleServices.updateRecord(id, data);
 
       return res.status(204).send();
     } catch (error) {
@@ -72,15 +62,7 @@ class PeopleController {
     const { id } = req.params;
 
     try {
-      const requestedPerson = await database.Person.findOne({ where: { id } });
-
-      if (!requestedPerson) {
-        return res.status(404).send("Person not found.");
-      }
-
-      await database.Person.destroy({
-        where: { id },
-      });
+      const requestedPerson = await peopleServices.deleteRecord(id);
 
       return res.status(204).send();
     } catch (error) {

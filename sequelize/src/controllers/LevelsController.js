@@ -1,9 +1,11 @@
-const database = require("../db/models");
+const LevelsServices = require("../services/LevelsServices");
+
+const levelsServices = new LevelsServices();
 
 class LevelsController {
   static async index(req, res) {
     try {
-      const Levels = await database.Level.findAll();
+      const Levels = await levelsServices.getAllRecords();
 
       return res.status(200).json(Levels);
     } catch (error) {
@@ -15,7 +17,7 @@ class LevelsController {
     const { id } = req.params;
 
     try {
-      const Level = await database.Level.findOne({ where: { id } });
+      const Level = await levelsServices.getOneRecord(id);
 
       if (!Level) {
         return res.status(404).send("Level not found.");
@@ -28,10 +30,10 @@ class LevelsController {
   }
 
   static async store(req, res) {
-    const Level = req.body;
+    const data = req.body;
 
     try {
-      const createdLevel = await database.Level.create(Level);
+      const createdLevel = await levelsServices.createRecord(data);
 
       return res.status(201).json(createdLevel);
     } catch (error) {
@@ -41,18 +43,10 @@ class LevelsController {
 
   static async update(req, res) {
     const { id } = req.params;
-    const Level = req.body;
+    const data = req.body;
 
     try {
-      const requestedLevel = await database.Level.findOne({ where: { id } });
-
-      if (!requestedLevel) {
-        return res.status(404).send("Level not found.");
-      }
-
-      await database.Level.update(Level, {
-        where: { id },
-      });
+      await levelsServices.updateRecord(id, data);
 
       return res.status(204).send();
     } catch (error) {
@@ -64,15 +58,7 @@ class LevelsController {
     const { id } = req.params;
 
     try {
-      const requestedLevel = await database.Level.findOne({ where: { id } });
-
-      if (!requestedLevel) {
-        return res.status(404).send("Level not found.");
-      }
-
-      await database.Level.destroy({
-        where: { id },
-      });
+      await levelsServices.deleteRecord(id);
 
       return res.status(204).send();
     } catch (error) {

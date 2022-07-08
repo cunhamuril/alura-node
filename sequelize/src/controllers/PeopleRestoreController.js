@@ -1,11 +1,13 @@
-const database = require("../db/models");
+const PeopleServices = require("../services/PeopleServices");
+
+const peopleServices = new PeopleServices();
 
 class PeopleRestoreController {
   static async store(req, res) {
     const { id } = req.params;
 
     try {
-      await database.Person.restore({ where: { id } });
+      await peopleServices.restoreRecord(id);
 
       return res.status(200).json({ message: `id ${id} restored` });
     } catch (error) {

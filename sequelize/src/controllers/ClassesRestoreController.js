@@ -1,11 +1,13 @@
-const database = require("../db/models");
+const ClassesServices = require("../services/ClassesServices");
+
+const classesServices = new ClassesServices();
 
 class ClassesRestoreController {
   static async store(req, res) {
     const { id } = req.params;
 
     try {
-      await database.Class.restore({ where: { id } });
+      await classesServices.restoreRecord(id);
 
       return res.status(200).json({ message: `id ${id} restored` });
     } catch (error) {

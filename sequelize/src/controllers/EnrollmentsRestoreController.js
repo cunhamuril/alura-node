@@ -1,11 +1,13 @@
-const database = require("../db/models");
+const EnrollmentsServices = require("../services/EnrollmentsServices");
+
+const enrollmentsServices = new EnrollmentsServices();
 
 class EnrollmentsRestoreController {
   static async store(req, res) {
     const { id } = req.params;
 
     try {
-      await database.Enrollment.restore({ where: { id } });
+      await enrollmentsServices.restoreRecord(id);
 
       return res.status(200).json({ message: `id ${id} restored` });
     } catch (error) {
