@@ -23,7 +23,7 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         validate: {
           isIn: {
-            args: ["confirmed", "canceled"],
+            args: [["confirmed", "canceled"]],
             msg: "The status field should be 'confirmed' or 'canceled'.",
           },
         },

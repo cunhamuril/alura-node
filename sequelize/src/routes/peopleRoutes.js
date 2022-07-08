@@ -3,6 +3,7 @@ const express = require("express");
 const PeopleController = require("../controllers/PeopleController.js");
 const EnrollmentByStudentController = require("../controllers/EnrollmentByStudentController.js");
 const PeopleRestoreController = require("../controllers/PeopleRestoreController.js");
+const PeopleCancelController = require("../controllers/PeopleCancelController.js");
 
 const router = express.Router();
 
@@ -23,5 +24,7 @@ router.get(
 );
 
 router.post("/people/:id/restore", PeopleRestoreController.store);
+
+router.post("/people/:id/cancel", PeopleCancelController.store);
 
 module.exports = router;
