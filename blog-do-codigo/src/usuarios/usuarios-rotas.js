@@ -1,5 +1,3 @@
-const passport = require("passport");
-
 const usuariosControlador = require("./usuarios-controlador");
 const middlewaresAutenticacao = require("./middlewares-autenticacao");
 
@@ -9,14 +7,15 @@ module.exports = (app) => {
     .post(middlewaresAutenticacao.local, usuariosControlador.login);
 
   app
+    .route("/usuario/logout")
+    .get(middlewaresAutenticacao.bearer, usuariosControlador.logout);
+
+  app
     .route("/usuario")
     .post(usuariosControlador.adiciona)
     .get(usuariosControlador.lista);
 
   app
     .route("/usuario/:id")
-    .delete(
-      passport.authenticate("bearer", { session: false }),
-      usuariosControlador.deleta
-    );
+    .delete(middlewaresAutenticacao.bearer, usuariosControlador.deleta);
 };
