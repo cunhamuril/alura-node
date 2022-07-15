@@ -1,12 +1,38 @@
-const passport = require('passport');
+const passport = require("passport");
+const allowlistRefreshToken = require("../../redis/allowlist-refresh-token");
+
+const Usuario = require("./usuarios-modelo");
+const { InvalidArgumentError } = require("../erros");
+
+async function verificaRefreshToken(refreshToken) {
+  if (!refreshToken) {
+    throw new InvalidArgumentError("Refresh token não enviado!");
+  }
+
+  const id = await allowlistRefreshToken.buscaValor(refreshToken);
+
+  if (!id) {
+    throw new InvalidArgumentError("Refresh token é inválido!");
+  }
+
+  return id;
+}
+
+async function invalidaRefreshToken(refreshToken) {
+  if (!refreshToken) {
+    throw new InvalidArgumentError("Refresh token não enviado!");
+  }
+
+  await allowlistRefreshToken.deleta(refreshToken);
+}
 
 module.exports = {
   local(req, res, next) {
     passport.authenticate(
-      'local',
+      "local",
       { session: false },
       (erro, usuario, info) => {
-        if (erro && erro.name === 'InvalidArgumentError') {
+        if (erro && erro.name === "InvalidArgumentError") {
           return res.status(401).json({ erro: erro.message });
         }
 
@@ -26,14 +52,14 @@ module.exports = {
 
   bearer(req, res, next) {
     passport.authenticate(
-      'bearer',
+      "bearer",
       { session: false },
       (erro, usuario, info) => {
-        if (erro && erro.name === 'JsonWebTokenError') {
+        if (erro && erro.name === "JsonWebTokenError") {
           return res.status(401).json({ erro: erro.message });
         }
 
-        if (erro && erro.name === 'TokenExpiredError') {
+        if (erro && erro.name === "TokenExpiredError") {
           return res
             .status(401)
             .json({ erro: erro.message, expiradoEm: erro.expiredAt });
@@ -52,5 +78,24 @@ module.exports = {
         return next();
       }
     )(req, res, next);
+  },
+
+  async refresh(req, res, next) {
+    try {
+      const { refreshToken } = req.body;
+      const id = await verificaRefreshToken(refreshToken);
+
+      await invalidaRefreshToken(refreshToken);
+
+      req.user = await Usuario.buscaPorId(id);
+
+      return next();
+    } catch (error) {
+      if (error instanceof InvalidArgumentError) {
+        return res.status(401).json({ erro: error.message });
+      }
+
+      return res.status(500).json({ erro: error.message });
+    }
   },
 };
