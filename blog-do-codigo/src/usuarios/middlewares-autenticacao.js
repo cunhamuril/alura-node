@@ -1,4 +1,5 @@
 const passport = require("passport");
+const { JsonWebTokenError, TokenExpiredError } = require("jsonwebtoken");
 
 const { InvalidArgumentError } = require("../erros");
 
@@ -72,6 +73,31 @@ module.exports = {
     } catch (error) {
       if (error instanceof InvalidArgumentError) {
         return res.status(401).json({ erro: error.message });
+      }
+
+      return res.status(500).json({ erro: error.message });
+    }
+  },
+
+  async verificacaoEmail(req, res, next) {
+    try {
+      const { token } = req.params;
+      const id = await tokens.verificacaoEmail.verifica(token);
+      const usuario = await Usuario.buscaPorId(id);
+
+      req.user = usuario;
+
+      next();
+    } catch (error) {
+      if (error instanceof JsonWebTokenError) {
+        return res.status(401).json({ erro: error.message });
+      }
+
+      if (error instanceof TokenExpiredError) {
+        return res.status(401).json({
+          erro: error.message,
+          expiradoEm: error.expiredAt,
+        });
       }
 
       return res.status(500).json({ erro: error.message });

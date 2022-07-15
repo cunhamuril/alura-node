@@ -1,5 +1,5 @@
-const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('db.sqlite');
+const sqlite3 = require("sqlite3").verbose();
+const db = new sqlite3.Database("db.sqlite");
 
 const POSTS_SCHEMA = `
   CREATE TABLE IF NOT EXISTS posts (
@@ -14,17 +14,18 @@ const USUARIOS_SCHEMA = `
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     nome VARCHAR(40) NOT NULL,
     email VARCHAR(255) NOT NULL UNIQUE,
-    senhaHash VARCHAR(255) NOT NULL
+    senhaHash VARCHAR(255) NOT NULL,
+    emailVerificado INTEGER NOT NULL
   )
   `;
 
 db.serialize(() => {
-  db.run('PRAGMA foreign_keys=ON');
+  db.run("PRAGMA foreign_keys=ON");
   db.run(POSTS_SCHEMA);
   db.run(USUARIOS_SCHEMA);
 });
 
-process.on('SIGINT', () =>
+process.on("SIGINT", () =>
   db.close(() => {
     process.exit(0);
   })

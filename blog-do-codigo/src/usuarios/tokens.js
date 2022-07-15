@@ -27,7 +27,9 @@ async function verificaTokenNaBlocklist(token, nome, blocklist) {
 }
 
 async function verificaTokenJWT(token, nome, blocklist) {
-  await verificaTokenNaBlocklist(token, nome, blocklist);
+  if (blocklist) {
+    await verificaTokenNaBlocklist(token, nome, blocklist);
+  }
 
   const { id } = jwt.verify(token, process.env.JWT_SECRET);
 
@@ -112,6 +114,19 @@ module.exports = {
 
     invalida(token) {
       return invalidaTokenOpaco(token, this.nome, this.lista);
+    },
+  },
+
+  verificacaoEmail: {
+    nome: "token de verificacao de e-mail",
+    expiracao: [1, "h"],
+
+    cria(id) {
+      return criaTokenJWT(id, this.expiracao);
+    },
+
+    verifica(token) {
+      return verificaTokenJWT(token, this.nome);
     },
   },
 };
