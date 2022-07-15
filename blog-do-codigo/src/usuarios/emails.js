@@ -1,15 +1,37 @@
 const nodemailer = require("nodemailer");
 
+const configuracaoEmailProducao = {
+  host: process.env.EMAIL_HOST,
+  port: process.env.EMAIL_PORT,
+  auth: {
+    user: process.env.EMAIL_USUARIO,
+    pass: process.env.EMAIL_SENHA,
+  },
+  secure: true,
+};
+
+const configuracaoEmailTeste = (contaTeste) => ({
+  host: "smtp.mailtrap.io",
+  port: 2525,
+  auth: contaTeste,
+});
+
+function criaConfiguraçãoEmail() {
+  if (process.env.NODE_ENV === "production") {
+    return configuracaoEmailProducao;
+  } else {
+    return configuracaoEmailTeste({
+      user: "802ba43f96b6ac",
+      pass: "0f93a369c44a6f",
+    });
+  }
+}
+
 class Email {
   async enviaEmail() {
-    const transportador = nodemailer.createTransport({
-      host: "smtp.mailtrap.io",
-      port: 2525,
-      auth: {
-        user: "802ba43f96b6ac",
-        pass: "0f93a369c44a6f",
-      },
-    });
+    const configuracaoEmail = criaConfiguraçãoEmail();
+
+    const transportador = nodemailer.createTransport(configuracaoEmail);
 
     transportador.sendMail(this);
   }
