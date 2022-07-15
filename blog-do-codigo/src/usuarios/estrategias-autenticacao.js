@@ -1,68 +1,66 @@
-const passport = require("passport");
-const { Strategy: LocalStrategy } = require("passport-local");
-const { Strategy: BearerStrategy } = require("passport-http-bearer");
-const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
+const passport = require('passport');
+const LocalStrategy = require('passport-local').Strategy;
+const BearerStrategy = require('passport-http-bearer').Strategy;
 
-const Usuario = require("./usuarios-modelo");
-const { InvalidArgumentError } = require("../erros");
+const Usuario = require('./usuarios-modelo');
 
-const blacklist = require("../../redis/manipula-blacklist");
+const { InvalidArgumentError } = require('../erros');
+
+const bcrypt = require('bcrypt');
+
+const jwt = require('jsonwebtoken');
+const blocklist = require('../../redis/manipula-blocklist');
 
 function verificaUsuario(usuario) {
   if (!usuario) {
-    throw new InvalidArgumentError("Não existe usuário com esse e-mail.");
+    throw new InvalidArgumentError('Não existe usuário com esse e-mail!');
+  }
+}
+
+async function verificaTokenNaBlocklist(token) {
+  const tokenNaBlocklist = await blocklist.contemToken(token);
+  if (tokenNaBlocklist) {
+    throw new jwt.JsonWebTokenError('Token inválido por logout!');
   }
 }
 
 async function verificaSenha(senha, senhaHash) {
   const senhaValida = await bcrypt.compare(senha, senhaHash);
-
   if (!senhaValida) {
-    throw new InvalidArgumentError("E-mail ou senha inválidos.");
+    throw new InvalidArgumentError('E-mail ou senha inválidos!');
   }
 }
 
-async function verificaTokenNaBlacklist(token) {
-  const tokenNaBlacklist = await blacklist.contemToken(token);
+passport.use(
+  new LocalStrategy(
+    {
+      usernameField: 'email',
+      passwordField: 'senha',
+      session: false,
+    },
+    async (email, senha, done) => {
+      try {
+        const usuario = await Usuario.buscaPorEmail(email);
+        verificaUsuario(usuario);
+        await verificaSenha(senha, usuario.senhaHash);
 
-  if (tokenNaBlacklist) {
-    throw new jwt.JsonWebTokenError("Token inválido por logout!");
-  }
-}
-
-const localStrategy = new LocalStrategy(
-  {
-    usernameField: "email",
-    passwordField: "senha",
-    session: false,
-  },
-  async (email, senha, done) => {
-    try {
-      const usuario = await Usuario.buscaPorEmail(email);
-
-      verificaUsuario(usuario);
-      await verificaSenha(senha, usuario.senhaHash);
-
-      done(null, usuario);
-    } catch (error) {
-      done(error);
+        done(null, usuario);
+      } catch (erro) {
+        done(erro);
+      }
     }
-  }
+  )
 );
 
-const bearerStrategy = new BearerStrategy(async (token, done) => {
-  try {
-    await verificaTokenNaBlacklist(token);
-
-    const payload = jwt.verify(token, process.env.JWT_SECRET);
-    const usuario = Usuario.buscaPorId(payload.id);
-
-    done(null, usuario, { token });
-  } catch (error) {
-    done(error);
-  }
-});
-
-passport.use(localStrategy);
-passport.use(bearerStrategy);
+passport.use(
+  new BearerStrategy(async (token, done) => {
+    try {
+      await verificaTokenNaBlocklist(token);
+      const payload = jwt.verify(token, process.env.CHAVE_JWT);
+      const usuario = await Usuario.buscaPorId(payload.id);
+      done(null, usuario, { token });
+    } catch (erro) {
+      done(erro);
+    }
+  })
+);

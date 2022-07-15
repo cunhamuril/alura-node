@@ -1,8 +1,7 @@
-const bcrypt = require("bcrypt");
-
-const usuariosDao = require("./usuarios-dao");
-const { InvalidArgumentError } = require("../erros");
-const validacoes = require("../validacoes-comuns");
+const usuariosDao = require('./usuarios-dao');
+const { InvalidArgumentError } = require('../erros');
+const validacoes = require('../validacoes-comuns');
+const bcrypt = require('bcrypt');
 
 class Usuario {
   constructor(usuario) {
@@ -10,29 +9,28 @@ class Usuario {
     this.nome = usuario.nome;
     this.email = usuario.email;
     this.senhaHash = usuario.senhaHash;
-
     this.valida();
   }
 
   async adiciona() {
     if (await Usuario.buscaPorEmail(this.email)) {
-      throw new InvalidArgumentError("O usuário já existe!");
+      throw new InvalidArgumentError('O usuário já existe!');
     }
 
-    return usuariosDao.adiciona(this);
+    await usuariosDao.adiciona(this);
   }
 
   async adicionaSenha(senha) {
-    validacoes.campoStringNaoNulo(senha, "senha");
-    validacoes.campoTamanhoMinimo(senha, "senha", 8);
-    validacoes.campoTamanhoMaximo(senha, "senha", 64);
+    validacoes.campoStringNaoNulo(senha, 'senha');
+    validacoes.campoTamanhoMinimo(senha, 'senha', 8);
+    validacoes.campoTamanhoMaximo(senha, 'senha', 64);
 
     this.senhaHash = await Usuario.gerarSenhaHash(senha);
   }
 
   valida() {
-    validacoes.campoStringNaoNulo(this.nome, "nome");
-    validacoes.campoStringNaoNulo(this.email, "email");
+    validacoes.campoStringNaoNulo(this.nome, 'nome');
+    validacoes.campoStringNaoNulo(this.email, 'email');
   }
 
   async deleta() {
@@ -63,7 +61,6 @@ class Usuario {
 
   static gerarSenhaHash(senha) {
     const custoHash = 12;
-
     return bcrypt.hash(senha, custoHash);
   }
 }
