@@ -1,10 +1,10 @@
 require("dotenv").config();
 
-const { InvalidArgumentError } = require("../erros");
+const { NotFoundError } = require("../erros");
 
 const Usuario = require("./usuarios-modelo");
 const tokens = require("./tokens");
-const { EmailVerificacao } = require("./emails");
+const { EmailVerificacao, EmailRedefinicaoSenha } = require("./emails");
 
 function geraEndereco(rota, token) {
   const baseURL = process.env.BASE_URL;
@@ -91,6 +91,53 @@ module.exports = {
       res.status(200).json();
     } catch (erro) {
       next(erro);
+    }
+  },
+
+  async esqueciMinhaSenha(req, res, next) {
+    const respostaPadrao =
+      "Se encontrarmos um usuário com este e-mail, vamos enviar uma mensagem com as instruções para redefinir a senha.";
+
+    try {
+      const { email } = req.body;
+      const usuario = await Usuario.buscaPorEmail(email);
+
+      const token = tokens.redefinicaoSenha.cria(usuario.id);
+      const endereco = geraEndereco("/usuario/redefinir-senha", token);
+
+      const emailRedefinicaoSenha = new EmailRedefinicaoSenha(
+        usuario,
+        endereco
+      );
+      await emailRedefinicaoSenha.enviaEmail();
+
+      res.send({ mensagem: respostaPadrao });
+    } catch (error) {
+      if (error instanceof NotFoundError) {
+        res.send({ mensagem: respostaPadrao });
+
+        return;
+      }
+
+      next(error);
+    }
+  },
+
+  async redefineSenha(req, res, next) {
+    const { senha, confirmacaoSenha } = req.body;
+
+    if (senha !== confirmacaoSenha) {
+      return res.status(401).json({ mensagem: "As senhas não coincidem" });
+    }
+
+    try {
+      const usuario = req.user;
+
+      await usuario.redefineSenha(senha);
+
+      return res.status(201).send();
+    } catch (error) {
+      next(error);
     }
   },
 };

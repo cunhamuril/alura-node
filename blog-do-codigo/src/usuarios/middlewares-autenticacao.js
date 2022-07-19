@@ -71,4 +71,18 @@ module.exports = {
       return next(error);
     }
   },
+
+  async redefinicaoDeSenha(req, res, next) {
+    try {
+      const { token } = req.params;
+      const id = await tokens.redefinicaoSenha.verifica(token);
+      const usuario = await Usuario.buscaPorId(id);
+
+      req.user = usuario;
+
+      next();
+    } catch (error) {
+      return next(error);
+    }
+  },
 };

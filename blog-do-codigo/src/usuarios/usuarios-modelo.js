@@ -61,6 +61,12 @@ class Usuario {
     await usuariosDao.modificaEmailVerificado(this, this.emailVerificado);
   }
 
+  async redefineSenha(senha) {
+    await this.adicionaSenha(senha);
+
+    await usuariosDao.atualizaSenha(this);
+  }
+
   async deleta() {
     return usuariosDao.deleta(this);
   }
