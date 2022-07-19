@@ -12,16 +12,8 @@ module.exports = {
       "local",
       { session: false },
       (erro, usuario, info) => {
-        if (erro && erro.name === "InvalidArgumentError") {
-          return res.status(401).json({ erro: erro.message });
-        }
-
         if (erro) {
-          return res.status(500).json({ erro: erro.message });
-        }
-
-        if (!usuario) {
-          return res.status(401).json();
+          return next(erro);
         }
 
         req.user = usuario;
@@ -35,18 +27,8 @@ module.exports = {
       "bearer",
       { session: false },
       (erro, usuario, info) => {
-        if (erro && erro.name === "JsonWebTokenError") {
-          return res.status(401).json({ erro: erro.message });
-        }
-
-        if (erro && erro.name === "TokenExpiredError") {
-          return res
-            .status(401)
-            .json({ erro: erro.message, expiradoEm: erro.expiredAt });
-        }
-
         if (erro) {
-          return res.status(500).json({ erro: erro.message });
+          return next(erro);
         }
 
         if (!usuario) {
@@ -72,11 +54,7 @@ module.exports = {
 
       return next();
     } catch (error) {
-      if (error instanceof InvalidArgumentError) {
-        return res.status(401).json({ erro: error.message });
-      }
-
-      return res.status(500).json({ erro: error.message });
+      return next(error);
     }
   },
 
@@ -90,18 +68,7 @@ module.exports = {
 
       next();
     } catch (error) {
-      if (error instanceof JsonWebTokenError) {
-        return res.status(401).json({ erro: error.message });
-      }
-
-      if (error instanceof TokenExpiredError) {
-        return res.status(401).json({
-          erro: error.message,
-          expiradoEm: error.expiredAt,
-        });
-      }
-
-      return res.status(500).json({ erro: error.message });
+      return next(error);
     }
   },
 };
