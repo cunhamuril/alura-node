@@ -12,8 +12,16 @@ const {
   NotAuthorizedError,
 } = require("./src/erros");
 
-const routes = require("./rotas");
 const app = require("./app");
+const routes = require("./rotas");
+
+app.use((req, res, next) => {
+  res.set({
+    "Content-Type": "application/json",
+  });
+
+  next();
+});
 
 routes(app);
 
